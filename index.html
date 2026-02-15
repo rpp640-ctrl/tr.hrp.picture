@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>催事場所ナレッジ管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+    }
+
+    .header h1 {
+        font-size: 28px;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .main-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .tab {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 25px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 15px 50px 15px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .image-upload-area {
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: #f9f9f9;
+    }
+
+    .image-upload-area:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+
+    .image-upload-area.dragover {
+        border-color: #667eea;
+        background: #e8f0fe;
+    }
+
+    .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .image-preview-item {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #e0e0e0;
+    }
+
+    .image-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .image-preview-item .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255,0,0,0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .btn {
+        padding: 14px 28px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+    }
+
+    .location-list {
+        display: grid;
+        gap: 15px;
+    }
+
+    .location-card {
+        background: #f9f9f9;
+        border-radius: 12px;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .location-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+    }
+
+    .location-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .location-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .location-date {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .location-info {
+        margin-bottom: 10px;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .location-images {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        overflow-x: auto;
+    }
+
+    .location-images img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .location-images img:hover {
+        transform: scale(1.1);
+    }
+
+    .tag {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #667eea;
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-right: 5px;
+        margin-top: 5px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.8);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        position: relative;
+    }
+
+    .modal-content img {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 8px;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: -40px;
+        right: 0;
+        background: white;
+        border: none;
+        color: #333;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+    }
+
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    @media (max-width: 768px) {
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .tabs {
+            overflow-x: auto;
+        }
+
+        .tab {
+            white-space: nowrap;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 催事場所ナレッジ管理</h1>
+            <p>全スタッフで成功事例を共有しよう</p>
+        </div>
+
+```
+    <div class="main-card">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('list')">📋 場所一覧</button>
+            <button class="tab" onclick="switchTab('add')">➕ 新規登録</button>
+            <button class="tab" onclick="switchTab('stats')">📊 統計</button>
+        </div>
+
+        <!-- 一覧タブ -->
+        <div id="list-tab" class="tab-content active">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="催事場所名で検索...">
+                <span class="search-icon">🔍</span>
+            </div>
+            <div id="locationList" class="location-list"></div>
+        </div>
+
+        <!-- 登録タブ -->
+        <div id="add-tab" class="tab-content">
+            <form id="locationForm">
+                <div class="form-group">
+                    <label>催事場所名 *</label>
+                    <input type="text" id="locationName" required placeholder="例: イオンモール〇〇">
+                </div>
+
+                <div class="form-group">
+                    <label>エリア</label>
+                    <select id="area">
+                        <option value="">選択してください</option>
+                        <option value="関東">関東</option>
+                        <option value="関西">関西</option>
+                        <option value="中部">中部</option>
+                        <option value="九州">九州</option>
+                        <option value="東北">東北</option>
+                        <option value="北海道">北海道</option>
+                        <option value="中国">中国</option>
+                        <option value="四国">四国</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>場所の特性</label>
+                    <textarea id="characteristics" placeholder="客層、立地、混雑時間帯など"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>良かった動き方・成功事例 *</label>
+                    <textarea id="bestPractices" required placeholder="効果的だった声かけ、配置、時間帯など"></textarea>
+                </div>
+```
+
+None
+
+```
+                <div class="form-group">
+                    <label>注意点・NG事項</label>
+                    <textarea id="cautions" placeholder="やってはいけないこと、注意すべきポイント"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>写真アップロード</label>
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <p>📸 クリックまたはドラッグ＆ドロップで写真を追加</p>
+                        <p style="font-size: 12px; color: #999; margin-top: 5px;">複数選択可能</p>
+                    </div>
+                    <input type="file" id="imageInput" multiple accept="image/*" style="display: none;">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">💾 登録する</button>
+            </form>
+        </div>
+
+        <!-- 統計タブ -->
+        <div id="stats-tab" class="tab-content">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalLocations">0</div>
+                    <div class="stat-label">登録場所数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalImages">0</div>
+                    <div class="stat-label">写真総数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAreas">0</div>
+                    <div class="stat-label">エリア数</div>
+                </div>
+            </div>
+            <div id="areaBreakdown"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 画像モーダル -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+        <img id="modalImage" src="" alt="">
+    </div>
+</div>
+
+<script>
+    let locations = [];
+    let uploadedImages = [];
+
+    // ローカルストレージから読み込み
+    function loadData() {
+        const saved = localStorage.getItem('locationData');
+        if (saved) {
+            locations = JSON.parse(saved);
+        }
+        renderLocations();
+        updateStats();
+    }
+
+    // データ保存
+    function saveData() {
+        localStorage.setItem('locationData', JSON.stringify(locations));
+    }
+
+    // タブ切り替え
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabName + '-tab').classList.add('active');
+    }
+
+    // 画像アップロード関連
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    const imageInput = document.getElementById('imageInput');
+    const imagePreview = document.getElementById('imagePreview');
+
+    imageUploadArea.addEventListener('click', () => imageInput.click());
+
+    imageUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        imageUploadArea.classList.add('dragover');
+    });
+
+    imageUploadArea.addEventListener('dragleave', () => {
+        imageUploadArea.classList.remove('dragover');
+    });
+
+    imageUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        imageUploadArea.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+    });
+
+    function handleFiles(files) {
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImages.push(e.target.result);
+                    renderImagePreview();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function renderImagePreview() {
+        imagePreview.innerHTML = uploadedImages.map((img, index) => `
+            <div class="image-preview-item">
+                <img src="${img}" alt="Preview">
+                <button class="remove-btn" onclick="removeImage(${index})">×</button>
+            </div>
+        `).join('');
+    }
+
+    function removeImage(index) {
+        uploadedImages.splice(index, 1);
+        renderImagePreview();
+    }
+
+    // フォーム送信
+    document.getElementById('locationForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newLocation = {
+            id: Date.now(),
+            name: document.getElementById('locationName').value,
+            area: document.getElementById('area').value,
+            characteristics: document.getElementById('characteristics').value,
+            bestPractices: document.getElementById('bestPractices').value,
+            cautions: document.getElementById('cautions').value,
+            images: [...uploadedImages],
+            createdAt: new Date().toISOString()
+        };
+
+        locations.unshift(newLocation);
+        saveData();
+        renderLocations();
+        updateStats();
+
+        // フォームリセット
+        e.target.reset();
+        uploadedImages = [];
+        renderImagePreview();
+
+        // 一覧タブに切り替え
+        switchTab('list');
+        document.querySelector('.tab').click();
+
+        alert('✅ 登録完了しました！');
+    });
+
+    // 場所一覧表示
+    function renderLocations(filter = '') {
+        const locationList = document.getElementById('locationList');
+        
+        const filtered = locations.filter(loc => 
+            loc.name.toLowerCase().includes(filter.toLowerCase()) ||
+            loc.area.toLowerCase().includes(filter.toLowerCase())
+        );
+
+        if (filtered.length === 0) {
+            locationList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>まだ登録がありません</p>
+                    <p style="font-size: 14px; margin-top: 10px;">「新規登録」タブから催事場所を追加しましょう</p>
+                </div>
+            `;
+            return;
+        }
+
+        locationList.innerHTML = filtered.map(loc => `
+            <div class="location-card">
+                <div class="location-card-header">
+                    <div class="location-name">${loc.name}</div>
+                    <div class="location-date">${new Date(loc.createdAt).toLocaleDateString('ja-JP')}</div>
+                </div>
+                ${loc.area ? `<span class="tag">${loc.area}</span>` : ''}
+                ${loc.characteristics ? `<div class="location-info"><strong>📌 特性:</strong> ${loc.characteristics}</div>` : ''}
+                <div class="location-info"><strong>✅ 成功事例:</strong> ${loc.bestPractices}</div>
+                ${loc.cautions ? `<div class="location-info"><strong>⚠️ 注意点:</strong> ${loc.cautions}</div>` : ''}
+                ${loc.images && loc.images.length > 0 ? `
+                    <div class="location-images">
+                        ${loc.images.map(img => `<img src="${img}" onclick="openModal('${img}')" alt="催事写真">`).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+    }
+
+    // 検索
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        renderLocations(e.target.value);
+    });
+
+    // 統計更新
+    function updateStats() {
+        document.getElementById('totalLocations').textContent = locations.length;
+        
+        const totalImages = locations.reduce((sum, loc) => sum + (loc.images?.length || 0), 0);
+        document.getElementById('totalImages').textContent = totalImages;
+
+        const areas = new Set(locations.map(loc => loc.area).filter(a => a));
+        document.getElementById('totalAreas').textContent = areas.size;
+
+        // エリア別内訳
+        const areaCount = {};
+        locations.forEach(loc => {
+            if (loc.area) {
+                areaCount[loc.area] = (areaCount[loc.area] || 0) + 1;
+            }
+        });
+
+        const areaBreakdown = document.getElementById('areaBreakdown');
+        if (Object.keys(areaCount).length > 0) {
+            areaBreakdown.innerHTML = `
+                <h3 style="margin: 20px 0 15px; font-size: 18px;">エリア別登録数</h3>
+                ${Object.entries(areaCount).map(([area, count]) => `
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: #f9f9f9; margin-bottom: 8px; border-radius: 8px;">
+                        <span>${area}</span>
+                        <strong>${count}件</strong>
+                    </div>
+                `).join('')}
+            `;
+        }
+    }
+
+    // モーダル
+    function openModal(imgSrc) {
+        document.getElementById('modalImage').src = imgSrc;
+        document.getElementById('imageModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').classList.remove('active');
+    }
+
+    document.getElementById('imageModal').addEventListener('click', (e) => {
+        if (e.target.id === 'imageModal') {
+            closeModal();
+        }
+    });
+
+    // 初期化
+    loadData();
+</script>
+```
+
+</body>
+</html>
